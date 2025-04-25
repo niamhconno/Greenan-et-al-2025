@@ -386,115 +386,6 @@ all_MTIs_combined$gene_count <- count_genes(all_MTIs_combined$target_gene)
 all_MTIs_combined$hsa_pub_cnt <- as.numeric(as.character(all_MTIs_combined$hsa_pub_cnt))
 all_MTIs_combined$total_pub_cnt <- all_MTIs_combined$hsa_pub_cnt
   
-######################################################################
-# Further analysis of MTIs - identify disease-associated genes
-  
-# Read in database containing disease-associated genes (from several sources - see file)
-# First column should contain official gene symbols!
-#disease_db_all <- read.csv("D:/Work/OneDrive - Royal College of Surgeons in Ireland/EpimiRNA/Network Map & Target ID/Epilepsy-Brain Gene DBs/ALL_EPILEPSY_GENES.csv", 
-#                            sep=",", stringsAsFactors=FALSE)
-#disease_db_all <- read.csv("D:/Work/OneDrive - Royal College of Surgeons in Ireland/mirna-projects/databases/ad-genes-mirna/AD-genes-niamh.csv", 
-#                           sep=",", stringsAsFactors=FALSE)
-  
-# Identify disease-associated genes in our gene list
-# Ensure to select correct column title!!
-#all_MTIs_combined$disease_genes <- ifelse(all_MTIs_combined$target_gene %in% disease_db_all$OFFICIALGENESYMBOL, 'Y', 'N')
-#all_MTIs_combined$disease_genes <- ifelse(all_MTIs_combined$target_gene %in% disease_db_all$GENE, 'Y', 'N')
-
-# How many genes have been implicated in the disease?
-#unique_mrna <- unique(all_MTIs_combined[,c(2,27)])
-#unique_mrna <- unique(all_MTIs_combined[,c("target_gene","disease_genes")])
-#nrow(unique_mrna)
-#temp <- table(unique_mrna$disease_genes, useNA = "ifany")
-#temp
-#barplot(temp, xlab="Disease-implicated (Y)", ylab="# of mRNA targets", 
-#        main = "Number of disease-implicated mRNA targets")
-
-######################################################################
-# Further analysis of MTIs - identify transcription factors
-
-# Read in database containing all transcription factors (this file needs to be updated)
-#tf_all <- read.csv("C:/Users/niamhmconnolly/OneDrive - Royal College of Surgeons in Ireland/EpimiRNA/Network Map & Target ID/R/Database downloads/TFs/temp-tf.txt", 
-#                            sep=",", stringsAsFactors=FALSE)
-
-# Identify transcription factors in our gene list
-#all_MTIs_combined$tf_genes <- ifelse(all_MTIs_combined$target_gene %in% tf_all$OFFICIAL.GENE.SYMBOL, 'Y', 'N')
-
-# How many of our genes are transcription factors?
-#unique_mrna <- unique(all_MTIs_combined[,c(2,28)])
-#unique_mrna <- unique(all_MTIs_combined[,c("target_gene","tf_genes")])
-#nrow(unique_mrna)
-#temp <- table(all_MTIs_combined$tf_genes, useNA = "ifany")
-#temp
-#barplot(temp, xlab="Transcription Factors (Y)", ylab="# of mRNA targets", 
-#        main = "Number of transcription factors in our mRNA targets")
-
-######################################################################
-# Further analysis of MTIs - identify mitochondria-associated genes
-
-# Read in database containing all mitochondria-related genes
-#mito_all <- read.csv("D:/Work/OneDrive - Royal College of Surgeons in Ireland/mirna-projects/databases/mitochondria/mito_db_niamh.csv", 
-#                   sep=",", stringsAsFactors=FALSE, fileEncoding="UTF-8-BOM")
-
-# Identify transcription factors in our gene list
-#all_MTIs_combined$mito_genes <- ifelse(all_MTIs_combined$target_gene %in% mito_all$SYMBOL, 'Y', 'N')
-
-# How many of our genes are associated with mitochondria?
-#unique_mrna <- unique(all_MTIs_combined[,c(2,28)])
-#unique_mrna <- unique(all_MTIs_combined[,c("target_gene","mito_genes")])
-#nrow(unique_mrna)
-#temp <- table(all_MTIs_combined$mito_genes, useNA = "ifany")
-#temp
-#barplot(temp, xlab="Mitochondria (Y)", ylab="# of mRNA targets", 
-#        main = "Number of mito-associated genes in our mRNA targets")
-
-######################################################################
-# Further analysis of MTIs - brain expression of genes
-# Read in database containing brain expression info for genes (from protein atlas - see file)
-# First column should contain official gene symbols!
-#brain_exp_db <- read.csv("C:/Users/niamhmconnolly/OneDrive - Royal College of Surgeons in Ireland/mirna-projects/databases/mRNA-brain-expression/mrna-brain-expressed.txt", 
- #                          sep="\t", stringsAsFactors=FALSE)
-
-# Identify brain-expressed genes in our gene list
-#all_MTIs_combined$brain_genes <- ifelse(all_MTIs_combined$target_gene %in% brain_exp_db$Gene, 'Y', 'N')
-
-# How many of our genes are expressed in the brain?
-#unique_mrna <- unique(all_MTIs_combined[,c(2,29)])
-#unique_mrna <- unique(all_MTIs_combined[,c("target_gene","brain_genes")])
-#nrow(unique_mrna)
-#temp <- table(all_MTIs_combined$brain_genes, useNA = "ifany")
-#temp
-#barplot(temp, xlab="Brain-expressed (Y)", ylab="# of mRNA targets", 
-#        main = "Number of mRNA targets expressed in the brain")
-
-######################################################################
-# Further analysis of MTIs - evidence classification
-# Identify those MTIs with no predictions, and only 1 pub with weak evidence across all species (total_FScore = 0.5, EvType = WEAK)
-#all_MTIs_combined$evType <- paste0(all_MTIs_combined$hsa_EvType, "==", all_MTIs_combined$mmu_EvType)
-#all_MTIs_combined$removeEv <- ifelse(all_MTIs_combined$total_Fscore == 0.5 & 
-#                                       (grepl('WEAK',all_MTIs_combined$hsa_EvType)), 'Y', 'N')
-
-# Identify those MTIs with hsa predictions, and strong evidence in at least one species (IScore > 0.5, EvType = STRONG)
-#all_MTIs_combined$predStrongEv <- ifelse(all_MTIs_combined$hsa_Iscore >0 & 
-#                                       (grepl('STRONG',all_MTIs_combined$hsa_EvType)), 'Y', 'N')
-
-# How many MTI meet these evidence criteria
-#temp <- table(all_MTIs_combined$removeEv, useNA = "ifany")
-#temp
-#temp <- table(all_MTIs_combined$predStrongEv, useNA = "ifany")
-#temp
-
-######################################################################
-## Look for specific mRNAs of interest
-#psen2 <- all_MTIs_combined[grepl("PSEN2", all_MTIs_combined$target_gene),]
-#psen1 <- all_MTIs_combined[grepl("PSEN1", all_MTIs_combined$target_gene),]
-#snca <- all_MTIs_combined[grepl("SNCA", all_MTIs_combined$target_gene),]
-#mrna_interest <- rbind(psen1,psen2)
-
-
-######################################################################
-## Explore characteristics of the identified MTIs
-
 # Convert scores to numeric
 all_MTIs_combined$hsa_Iscore <- as.numeric(as.character(all_MTIs_combined$hsa_Iscore))
 all_MTIs_combined$hsa_Vscore <- as.numeric(as.character(all_MTIs_combined$hsa_Vscore))
@@ -504,23 +395,24 @@ all_MTIs_combined$hsa_Vscore <- as.numeric(as.character(all_MTIs_combined$hsa_Vs
 ## Filter MTIs to retain only those of most interest
 
 #Remove predicted only MTIs unless confidence is Very High
-MTIs_filtered <- all_MTIs_combined[which(all_MTIs_combined$hsa_evType != "PRED_ONLY" 
+MTIs_filtered <- all_MTIs_combined[which(all_MTIs_combined$hsa_EvType != "PRED_ONLY" 
                                           | all_MTIs_combined$hsa_conf_class == "Very High"),]
 
 # Remove Weak evidence with no prediction if only 1 pub
-MTIs_filtered <- MTIs_filtered[which(MTIs_filtered$hsa_evType != "WEAK*_NOPRED"
+MTIs_filtered <- MTIs_filtered[which(MTIs_filtered$hsa_EvType != "WEAK*_NOPRED"
                                      | MTIs_filtered$hsa_pub_cnt > 1),]
 
 ######################################################################
 # Redo gene count for filtered dataset
 MTIs_filtered$gene_count_filtered <- count_genes(MTIs_filtered$target_gene)
 
-# Write to file
+# Write to file - SUpp Table 1
 write.csv(MTIs_filtered, file="MTIs_filtered-run2b_v2.csv", row.names = FALSE)
 
 ######################################################################
 ######################################################################
-## Create heatmap (numerical matrix) of miRNA-mRNA interactions [Greenan et al, 2025; Figure 2E]
+## Create heatmap (numerical matrix) of miRNA-mRNA interactions 
+# [Greenan et al, 2025; Figure 2E]
 # First, extract relevant information
 # Retain mRNA targets that are targeted by >X miRNA
 heatmap_data <- MTIs_filtered[MTIs_filtered$gene_count_filtered>1, ]
@@ -539,10 +431,7 @@ temp_mat_wide_mat <- temp_mat_wide_mat[,-1]
 
 # Complex Heatmap
 # https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html
-#my_palette = colorRampPalette(c("#ffeda0", "#feb24c", "#f03b20"))(n=100)
 my_palette = colorRampPalette(c("white", "red"))(n=100)
-# Same colours as evType default
-gene_count_palette = colorRamp2(c(1,max(temp_mat_wide_mat$gene_count_filtered)), c("grey", "black"))
 
 Heatmap(name="EvType", as.matrix(temp_mat_wide_mat[,-c(1)]), col=my_palette, 
         row_names_gp = gpar(fontsize = 8)
@@ -610,14 +499,15 @@ Heatmap(name="EvType", as.matrix(temp_mat_wide_mat[,-c(1)]), col=my_palette,
   pathwayRPEA <- myRPEA(MTIs_of_interest,pval_cutoff=0.05)
   pathwaydfRPEA <- pathway_df(pathwayRPEA)
   
-  write.csv(pathwaydfRPEA,"RPEA-run2bV2.csv", row.names = FALSE) # Supp Table 2
+  write.csv(pathwaydfRPEA,"RPEA-run2bV2_updated.csv", row.names = FALSE) # Supp Table 2
   
   # Visualise connections between pathways! (Enrichment map; formerly enrichMap)
   # if two categories have shared genes, they are connected; the edge width is scaled by the number of common genes between them.
   # pathway2 needs to be generated to avoid error in emapplot, then emapplot should be run on pathway2
   # Figure 2F, Greenan et al 2025
   dotplot(pathwayRPEA, x = "GeneRatio", showCategory = 30)
-  barplot(pathwayRPEA)
+  
+  #barplot(pathwayRPEA)
   #pathway2 <- pairwise_termsim(pathwayRPEA)
   #emapplot(pathway2, showCategory = nrow(pathway2))
   #emapplot(pathway2, showCategory = 30, cex_label_category=0.5)
