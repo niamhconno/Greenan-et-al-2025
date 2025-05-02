@@ -156,10 +156,12 @@ head(mirdip)
 
 ######################################################################
 ## Identify validated targets (MTIs with experimental evidence)
-# Load validated database (processed 2020-May-27 to include conversion to miRBase V22)
-# Includes miRTarBase, TarBase V8 and miRecords
-mtis_validated <- read.delim("C:/Users/niamhmconnolly/OneDrive - Royal College of Surgeons in Ireland/EpimiRNA/Network Map & Target ID/R/Database downloads/Validated dbs/f_validation_db_200527.txt",
-                            stringsAsFactors=FALSE)
+# Load validated database (processed 2023-July-27 to include conversion to miRBase V22)
+# Includes miRTarBase v9, TarBase V8 
+## If you use miRTarBase Release 9.0, please cite "miRTarBase update 2022:...."  
+## Nucleic Acids Research 2022 Jan 7;50(D1):D222-D230. [PUBMED]
+mtis_validated <- read.delim("C:/Users/niamhmconnolly/OneDrive - Royal College of Surgeons in Ireland/EpimiRNA/Network Map & Target ID/R/Database downloads/Validated dbs/f_validation_db_230726.txt",
+                             stringsAsFactors=FALSE)
 
 # Select miRNAs of interest from mtis_validated 
 temp_valid <- sqldf("SELECT * FROM mtis_validated
@@ -180,7 +182,6 @@ merged_mirdip_valid <- merged_mirdip_valid[ , !names(merged_mirdip_valid) %in%
                                               c("mirna","gene", "miRNA", "target_gene")]
 
 #split the miR_target column to get mirnas+genes for all rows
-# Gives a warning if there is an entry with > 1 space (e.g. mmu-miR-124-3b CDK6 (HSA))
 merged_mirdip_valid <- separate(data = merged_mirdip_valid, col = miR_target, 
                                 into = c("miRNA","target_gene"), sep = " ")
 
@@ -260,12 +261,11 @@ evidence_classification2 <- function(Integrated_Score, Experiments, cnt){
 
 # Call function
 mti_result_file$expt_strength <- apply(mti_result_file, 1, function(x) {
-  return(evidence_classification2(x[6], x[14], x[16]))
+  return(evidence_classification2(x[6], x[14], as.numeric(x[16])))
 })
 
 ######################################################################
 ## Combine species so species-independent MTIs are all on one row
-
 # Specify species to be analysed
 species = c('hsa')
 
@@ -358,13 +358,11 @@ all_MTIs_combined <- dplyr::relocate(all_MTIs_combined, gene_name, .before=hsa_I
 
 ######################################################################
 ######################################################################
-## Further analysis of MTIs - calculate total FScore
+## Further analysis of MTIs 
+# calculate total FScore
 all_MTIs_combined$total_Fscore <- as.numeric(all_MTIs_combined$hsa_Fscore)
   
-######################################################################
-## Further analysis of MTIs - count occurrence of genes
-# Edit so it outputs the number of genes rather than the interations
-
+## Count occurrence of genes
 # Count occurrence of each gene
 count_genes <- function(genename){
   # Pre-define empty variable
@@ -406,7 +404,7 @@ MTIs_filtered <- MTIs_filtered[which(MTIs_filtered$hsa_EvType != "WEAK*_NOPRED"
 # Redo gene count for filtered dataset
 MTIs_filtered$gene_count_filtered <- count_genes(MTIs_filtered$target_gene)
 
-# Write to file - SUpp Table 1
+# Write to file - [Greenan et al, 2025; Supp Table 1]
 write.csv(MTIs_filtered, file="MTIs_filtered-run2b_v2.csv", row.names = FALSE)
 
 ######################################################################
@@ -414,11 +412,9 @@ write.csv(MTIs_filtered, file="MTIs_filtered-run2b_v2.csv", row.names = FALSE)
 ## Create heatmap (numerical matrix) of miRNA-mRNA interactions 
 # [Greenan et al, 2025; Figure 2E]
 # First, extract relevant information
-# Retain mRNA targets that are targeted by >X miRNA
+# Retain mRNA targets that are targeted by >1 miRNA
 heatmap_data <- MTIs_filtered[MTIs_filtered$gene_count_filtered>1, ]
-#temp_mat <- heatmap_data[,c(1:2,27,28,38)]
 temp_mat <- heatmap_data[,c("miRNA","target_gene","gene_count_filtered")]
-#temp_mat$score <- heatmap_data$total_Fscore
 temp_mat$score <- as.numeric(as.factor(heatmap_data$hsa_EvType))
 
 # Create wide matrix
@@ -437,7 +433,7 @@ Heatmap(name="EvType", as.matrix(temp_mat_wide_mat[,-c(1)]), col=my_palette,
         row_names_gp = gpar(fontsize = 8)
         )
 
-  
+######################################################################
 ######################################################################
 ## Reactome Pathway enrichment analysis and visualisation
 ## If you use ReactomePA in published research, please cite:
@@ -499,11 +495,9 @@ Heatmap(name="EvType", as.matrix(temp_mat_wide_mat[,-c(1)]), col=my_palette,
   pathwayRPEA <- myRPEA(MTIs_of_interest,pval_cutoff=0.05)
   pathwaydfRPEA <- pathway_df(pathwayRPEA)
   
-  write.csv(pathwaydfRPEA,"RPEA-run2bV2_updated.csv", row.names = FALSE) # Supp Table 2
+  # Write to file - [Greenan et al, 2025; Supp Table 2]
+  write.csv(pathwaydfRPEA,"RPEA-run2bV2_updated.csv", row.names = FALSE)
   
-  # Visualise connections between pathways! (Enrichment map; formerly enrichMap)
-  # if two categories have shared genes, they are connected; the edge width is scaled by the number of common genes between them.
-  # pathway2 needs to be generated to avoid error in emapplot, then emapplot should be run on pathway2
   # Figure 2F, Greenan et al 2025
   dotplot(pathwayRPEA, x = "GeneRatio", showCategory = 30)
   
@@ -513,4 +507,3 @@ Heatmap(name="EvType", as.matrix(temp_mat_wide_mat[,-c(1)]), col=my_palette,
   #emapplot(pathway2, showCategory = 30, cex_label_category=0.5)
   #treeplot(pathway2)
   #cnetplot(pathwayRPEA)
-  
